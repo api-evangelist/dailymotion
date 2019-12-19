@@ -1,0 +1,81 @@
+{
+    "name": "Dailymotion",
+    "description": "<p>We believe that video is the best way to capture and share life&rsquo;s incredible variety. This is why at Dailymotion we aim to offer the best video experience:&nbsp;&nbsp;A place where you can discover content you love from around the world, live or on demand: sports competitions, music festivals, comedy skits, political debates, fashion shows, gaming live-streams&hellip; Our viewers can follow, watch and share the events and the ideas that keep the world surprising and diverse as they happen.&nbsp;<\/p>",
+    "image": "http:\/\/kinlane-productions.s3.amazonaws.com\/api-evangelist-site\/company\/logos\/daily-motion-logo.png",
+    "tags": [
+        "api provider",
+        "have api",
+        "streaming"
+    ],
+    "created": "2019-12-19",
+    "modified": "2019-12-19",
+    "url": "https:\/\/raw.githubusercontent.com\/api-evangelist\/dailymotion\/master\/apis.json",
+    "specificationVersion": "0.14",
+    "apis": [
+        {
+            "name": "Dailymotion",
+            "description": null,
+            "image": "http:\/\/kinlane-productions.s3.amazonaws.com\/api-evangelist-site\/company\/logos\/daily-motion-logo.png",
+            "humanURL": "https:\/\/dailymotion.com\/",
+            "baseURL": "",
+            "tags": [],
+            "properties": [
+                {
+                    "type": "x-openapi",
+                    "url": "https:\/\/raw.githubusercontent.com\/api-evangelist\/1forge\/master\/dailymotion-openapi.json"
+                }
+            ]
+        }
+    ],
+    "include": [],
+    "x-common": [
+        {
+            "type": "API.json - Authoritative",
+            "url": "https:\/\/raw.githubusercontent.com\/picsoung\/apis.json\/master\/dailymotion.json"
+        },
+        {
+            "type": "Android SDK",
+            "url": "https:\/\/developer.dailymotion.com\/tools\/sdks#sdk-android"
+        },
+        {
+            "type": "Developers",
+            "url": "https:\/\/developer.dailymotion.com\/"
+        },
+        {
+            "type": "JavaScript SDK",
+            "url": "https:\/\/developer.dailymotion.com\/tools\/sdks#sdk-javascript"
+        },
+        {
+            "type": "Curated Source",
+            "url": "http:\/\/jobs.dailymotion.com\/en\/Offer\/display\/263"
+        },
+        {
+            "type": "Jobs",
+            "url": "http:\/\/jobs.dailymotion.com"
+        },
+        {
+            "type": "Objective-C SDK",
+            "url": "https:\/\/developer.dailymotion.com\/tools\/sdks#sdk-objective-c"
+        },
+        {
+            "type": "PHP SDK",
+            "url": "https:\/\/developer.dailymotion.com\/tools\/sdks#sdk-php"
+        },
+        {
+            "type": "Python SDK",
+            "url": "https:\/\/developer.dailymotion.com\/tools\/sdks#sdk-python"
+        },
+        {
+            "type": "Stack Overflow",
+            "url": "http:\/\/stackoverflow.com\/questions\/tagged\/dailymotion-api?sort=votes&pageSize=15"
+        },
+        {
+            "type": "Twitter",
+            "url": "https:\/\/twitter.com\/DailymotionAPI"
+        },
+        {
+            "type": "Website",
+            "url": "https:\/\/dailymotion.com\/"
+        }
+    ]
+}
