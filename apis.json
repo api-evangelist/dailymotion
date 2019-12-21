@@ -7,8 +7,8 @@
         "have api",
         "streaming"
     ],
-    "created": "2019-12-19",
-    "modified": "2019-12-19",
+    "created": "2019-12-20",
+    "modified": "2019-12-20",
     "url": "https:\/\/raw.githubusercontent.com\/api-evangelist\/dailymotion\/master\/apis.json",
     "specificationVersion": "0.14",
     "apis": [
@@ -22,7 +22,7 @@
             "properties": [
                 {
                     "type": "x-openapi",
-                    "url": "https:\/\/raw.githubusercontent.com\/api-evangelist\/1forge\/master\/dailymotion-openapi.json"
+                    "url": "https:\/\/raw.githubusercontent.com\/api-evangelist\/dailymotion\/master\/dailymotion-openapi.json"
                 }
             ]
         }
@@ -32,6 +32,10 @@
         {
             "type": "API.json - Authoritative",
             "url": "https:\/\/raw.githubusercontent.com\/picsoung\/apis.json\/master\/dailymotion.json"
+        },
+        {
+            "type": "APIs.json",
+            "url": "https:\/\/raw.githubusercontent.com\/api-evangelist\/1forge\/master\/apis.json"
         },
         {
             "type": "Android SDK",
