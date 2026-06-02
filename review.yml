@@ -1,0 +1,94 @@
+aid: dailymotion
+name: Dailymotion
+review:
+  date: '2026-05-30'
+  reviewer: Kin Lane
+  focus: webhooks
+  source:
+    - https://developers.dailymotion.com/docs/webhooks
+    - https://developers.dailymotion.com/guides/webhooks/
+  summary: >
+    Dailymotion exposes a documented webhook surface for video lifecycle and
+    encoding/format events. Subscription is configured by setting webhook_url
+    and webhook_events fields on the authenticated user/channel object via a
+    POST to /user/<CHANNEL_ID> with the manage_videos scope. Payloads are
+    delivered via HTTP POST as JSON with a common envelope of type, timestamp,
+    and data. Owner-level permission is required (Admins/Editors cannot
+    configure webhooks in Organizations).
+  status: documented
+  artifact:
+    - type: AsyncAPI candidate
+      note: >
+        Event catalog and payload envelope are documented; a formal AsyncAPI
+        artifact has not yet been produced for this entry.
+  webhooks:
+    subscription:
+      method: POST
+      path: /user/<CHANNEL_ID>
+      scope: manage_videos
+      fields:
+        - name: webhook_url
+          description: Subscriber URL that will receive HTTP POST event deliveries.
+        - name: webhook_events
+          description: Comma-separated list of event types to subscribe to.
+      permissions: >
+        Only channel Owners can configure webhooks. Admins and Editors lack the
+        permission in Organizations. Requires Public API key.
+    delivery:
+      transport: HTTP POST
+      format: JSON
+      envelope:
+        - name: type
+          description: Event category (e.g. video.created).
+        - name: timestamp
+          description: Unix timestamp in milliseconds.
+        - name: data
+          description: Event-specific payload (e.g. owner_id, video_id, preset_name, status, progress).
+      verification:
+        documented: false
+        note: >
+          No HMAC, signing secret, or signature header is described in the
+          published documentation as of this review.
+      retry:
+        documented: false
+      unsubscribe:
+        documented: false
+        note: >
+          The guide describes initial setup but does not document removal or
+          modification of an existing subscription.
+      ip_allowlist:
+        - 3.254.17.195
+        - 63.33.129.201
+        - 18.202.188.16
+    events:
+      - name: video.created
+        description: Sent when the video is created (before publication and encoding).
+      - name: video.deleted
+        description: Sent when the video is deleted.
+      - name: video.published
+        description: >
+          Sent when the video is published, meaning that required formats
+          (SD and preview) have been successfully encoded.
+      - name: video.complete
+        description: >
+          Sent when a video is ready to use, meaning that all associated
+          formats have been successfully created.
+      - name: video.format.processing
+        description: Sent while the video encoder is processing a video format.
+      - name: video.format.ready
+        description: Sent when the encoding of a video format is done.
+      - name: video.format.error
+        description: Sent when an error occurred in the encoding process of a specific format.
+      - name: video.format.deleted
+        description: Sent when a video format is deleted.
+      note: >
+        Documentation states "An up-to-date list of events is available in the
+        API error message", implying the catalog may evolve server-side.
+  gaps:
+    - No documented signature/verification scheme for inbound payloads.
+    - No documented retry policy or delivery guarantees.
+    - No documented mechanism to list, update, or remove existing webhook subscriptions.
+    - No published machine-readable specification (OpenAPI/AsyncAPI) for the webhook surface.
+  recommendations:
+    - Produce an AsyncAPI 3.x artifact modeling the eight documented events and the common envelope.
+    - Track the Dailymotion docs for any future addition of signing/verification guidance.

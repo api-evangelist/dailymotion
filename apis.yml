@@ -4,7 +4,7 @@ description: "Dailymotion Developer API"
 url: https://developer.dailymotion.com/
 specificationVersion: '0.20'
 created: '2026-05-28'
-modified: '2026-05-28'
+modified: '2026-05-30'
 x-source: public-apis/public-apis
 x-category: "Video"
 x-tier: 3
@@ -22,11 +22,19 @@ apis:
     properties:
       - type: Documentation
         url: https://developer.dailymotion.com/
+      - type: Webhooks
+        url: https://developers.dailymotion.com/docs/webhooks
+      - type: WebhooksGuide
+        url: https://developers.dailymotion.com/guides/webhooks/
+      - type: Review
+        url: review.yml
 common:
   - type: Website
     url: https://developer.dailymotion.com/
   - type: PublicAPIsListing
     url: https://github.com/public-apis/public-apis
+  - type: Webhooks
+    url: https://developers.dailymotion.com/docs/webhooks
 maintainers:
   - FN: Kin Lane
     email: kin@apievangelist.com
