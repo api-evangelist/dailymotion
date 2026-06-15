@@ -1,0 +1,1069 @@
+"""
+Dailymotion GraphQL Schema
+Conceptual schema derived from the Dailymotion REST API.
+Covers video search, channel management, playlists, user profiles,
+content moderation, advertising configuration, analytics, and live streaming.
+"""
+
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+# ─── Root Types ─────────────────────────────────────────────────────────────
+
+type Query {
+  # Videos
+  video(id: ID!): Video
+  videos(filter: VideoFilter, sort: VideoSort, first: Int, after: String): VideoConnection
+
+  # Channels
+  channel(id: ID!): Channel
+  channels(filter: ChannelFilter, first: Int, after: String): ChannelConnection
+
+  # Users
+  user(id: ID!): User
+  me: User
+
+  # Playlists
+  playlist(id: ID!): Playlist
+  playlists(filter: PlaylistFilter, first: Int, after: String): PlaylistConnection
+
+  # Comments
+  comment(id: ID!): Comment
+  comments(videoId: ID!, first: Int, after: String): CommentConnection
+
+  # Live Streams
+  liveStream(id: ID!): LiveStream
+  liveStreams(filter: LiveStreamFilter, first: Int, after: String): LiveStreamConnection
+
+  # Search
+  search(query: String!, type: SearchType, first: Int, after: String): SearchResultConnection
+
+  # Analytics
+  videoAnalytics(videoId: ID!, period: AnalyticsPeriod!): VideoAnalytics
+  channelAnalytics(channelId: ID!, period: AnalyticsPeriod!): ChannelAnalytics
+
+  # Advertising
+  adConfiguration(id: ID!): AdConfiguration
+  adConfigurations(channelId: ID!, first: Int, after: String): AdConfigurationConnection
+
+  # Tags
+  tag(name: String!): Tag
+  tags(first: Int, after: String): TagConnection
+
+  # Categories
+  category(id: ID!): Category
+  categories(first: Int, after: String): CategoryConnection
+
+  # Languages
+  languages(first: Int, after: String): LanguageConnection
+
+  # Countries / Locales
+  country(code: String!): Country
+  countries(first: Int, after: String): CountryConnection
+
+  # Content moderation
+  moderationReport(id: ID!): ModerationReport
+  moderationReports(status: ModerationStatus, first: Int, after: String): ModerationReportConnection
+
+  # Subscriptions (user follows)
+  subscriptions(userId: ID!, first: Int, after: String): SubscriptionConnection
+
+  # Notifications
+  notifications(first: Int, after: String): NotificationConnection
+
+  # Webhooks
+  webhook(id: ID!): Webhook
+  webhooks(first: Int, after: String): WebhookConnection
+}
+
+type Mutation {
+  # Video management
+  createVideo(input: CreateVideoInput!): VideoPayload
+  updateVideo(id: ID!, input: UpdateVideoInput!): VideoPayload
+  deleteVideo(id: ID!): DeletePayload
+  publishVideo(id: ID!): VideoPayload
+  unpublishVideo(id: ID!): VideoPayload
+
+  # Channel management
+  createChannel(input: CreateChannelInput!): ChannelPayload
+  updateChannel(id: ID!, input: UpdateChannelInput!): ChannelPayload
+  deleteChannel(id: ID!): DeletePayload
+
+  # Playlist management
+  createPlaylist(input: CreatePlaylistInput!): PlaylistPayload
+  updatePlaylist(id: ID!, input: UpdatePlaylistInput!): PlaylistPayload
+  deletePlaylist(id: ID!): DeletePayload
+  addVideoToPlaylist(playlistId: ID!, videoId: ID!): PlaylistPayload
+  removeVideoFromPlaylist(playlistId: ID!, videoId: ID!): PlaylistPayload
+  reorderPlaylistVideos(playlistId: ID!, videoIds: [ID!]!): PlaylistPayload
+
+  # Comments
+  createComment(input: CreateCommentInput!): CommentPayload
+  updateComment(id: ID!, input: UpdateCommentInput!): CommentPayload
+  deleteComment(id: ID!): DeletePayload
+  likeComment(id: ID!): CommentPayload
+  unlikeComment(id: ID!): CommentPayload
+
+  # Live streaming
+  createLiveStream(input: CreateLiveStreamInput!): LiveStreamPayload
+  updateLiveStream(id: ID!, input: UpdateLiveStreamInput!): LiveStreamPayload
+  startLiveStream(id: ID!): LiveStreamPayload
+  stopLiveStream(id: ID!): LiveStreamPayload
+  deleteLiveStream(id: ID!): DeletePayload
+
+  # User management
+  updateUser(input: UpdateUserInput!): UserPayload
+  followUser(userId: ID!): FollowPayload
+  unfollowUser(userId: ID!): FollowPayload
+  followChannel(channelId: ID!): FollowPayload
+  unfollowChannel(channelId: ID!): FollowPayload
+
+  # Video interactions
+  likeVideo(videoId: ID!): VideoInteractionPayload
+  unlikeVideo(videoId: ID!): VideoInteractionPayload
+  watchLaterAdd(videoId: ID!): VideoInteractionPayload
+  watchLaterRemove(videoId: ID!): VideoInteractionPayload
+
+  # Content moderation
+  reportContent(input: ReportContentInput!): ModerationReportPayload
+  reviewModerationReport(id: ID!, decision: ModerationDecision!): ModerationReportPayload
+
+  # Advertising
+  createAdConfiguration(input: CreateAdConfigurationInput!): AdConfigurationPayload
+  updateAdConfiguration(id: ID!, input: UpdateAdConfigurationInput!): AdConfigurationPayload
+  deleteAdConfiguration(id: ID!): DeletePayload
+
+  # Webhooks
+  createWebhook(input: CreateWebhookInput!): WebhookPayload
+  updateWebhook(id: ID!, input: UpdateWebhookInput!): WebhookPayload
+  deleteWebhook(id: ID!): DeletePayload
+}
+
+type Subscription {
+  videoPublished(channelId: ID): Video
+  liveStreamStarted(channelId: ID): LiveStream
+  liveStreamEnded(id: ID!): LiveStream
+  commentAdded(videoId: ID!): Comment
+  notificationReceived: Notification
+}
+
+# ─── Video ──────────────────────────────────────────────────────────────────
+
+type Video {
+  id: ID!
+  title: String!
+  description: String
+  url: String!
+  embedUrl: String
+  thumbnailUrl: String
+  duration: Int
+  viewCount: Int
+  likeCount: Int
+  commentCount: Int
+  shareCount: Int
+  status: VideoStatus!
+  visibility: Visibility!
+  language: Language
+  country: Country
+  tags: [Tag!]
+  category: Category
+  channel: Channel
+  owner: User!
+  playlists(first: Int, after: String): PlaylistConnection
+  comments(first: Int, after: String): CommentConnection
+  analytics: VideoAnalyticsSummary
+  allowedCountries: [Country!]
+  blockedCountries: [Country!]
+  isAgeRestricted: Boolean!
+  isEmbedAllowed: Boolean!
+  isDownloadAllowed: Boolean!
+  isCommentsEnabled: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  publishedAt: DateTime
+}
+
+type VideoConnection {
+  edges: [VideoEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type VideoEdge {
+  node: Video!
+  cursor: String!
+}
+
+input VideoFilter {
+  channelId: ID
+  userId: ID
+  categoryId: ID
+  tags: [String!]
+  language: String
+  country: String
+  status: VideoStatus
+  visibility: Visibility
+  createdAfter: DateTime
+  createdBefore: DateTime
+  minDuration: Int
+  maxDuration: Int
+  minViewCount: Int
+  isAgeRestricted: Boolean
+  isLive: Boolean
+}
+
+enum VideoSort {
+  RECENT
+  POPULAR
+  MOST_VIEWED
+  MOST_LIKED
+  RELEVANCE
+  TRENDING
+}
+
+enum VideoStatus {
+  PUBLISHED
+  DRAFT
+  PROCESSING
+  FAILED
+  DELETED
+  BLOCKED
+}
+
+enum Visibility {
+  PUBLIC
+  PRIVATE
+  UNLISTED
+}
+
+input CreateVideoInput {
+  title: String!
+  description: String
+  url: String!
+  channelId: ID!
+  categoryId: ID
+  tags: [String!]
+  language: String
+  visibility: Visibility
+  isAgeRestricted: Boolean
+  isEmbedAllowed: Boolean
+  isDownloadAllowed: Boolean
+  isCommentsEnabled: Boolean
+  allowedCountries: [String!]
+  blockedCountries: [String!]
+}
+
+input UpdateVideoInput {
+  title: String
+  description: String
+  categoryId: ID
+  tags: [String!]
+  language: String
+  visibility: Visibility
+  isAgeRestricted: Boolean
+  isEmbedAllowed: Boolean
+  isDownloadAllowed: Boolean
+  isCommentsEnabled: Boolean
+  allowedCountries: [String!]
+  blockedCountries: [String!]
+}
+
+type VideoPayload {
+  video: Video
+  errors: [UserError!]
+}
+
+type VideoInteractionPayload {
+  video: Video
+  success: Boolean!
+  errors: [UserError!]
+}
+
+# ─── Channel ─────────────────────────────────────────────────────────────────
+
+type Channel {
+  id: ID!
+  name: String!
+  screenname: String!
+  description: String
+  url: String!
+  avatarUrl: String
+  coverUrl: String
+  followerCount: Int!
+  videoCount: Int!
+  playlistCount: Int!
+  owner: User!
+  videos(filter: VideoFilter, sort: VideoSort, first: Int, after: String): VideoConnection
+  playlists(first: Int, after: String): PlaylistConnection
+  followers(first: Int, after: String): UserConnection
+  analytics: ChannelAnalyticsSummary
+  adConfigurations(first: Int, after: String): AdConfigurationConnection
+  isVerified: Boolean!
+  isMonetizationEnabled: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type ChannelConnection {
+  edges: [ChannelEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type ChannelEdge {
+  node: Channel!
+  cursor: String!
+}
+
+input ChannelFilter {
+  name: String
+  ownerId: ID
+  isVerified: Boolean
+}
+
+input CreateChannelInput {
+  name: String!
+  screenname: String!
+  description: String
+}
+
+input UpdateChannelInput {
+  name: String
+  description: String
+}
+
+type ChannelPayload {
+  channel: Channel
+  errors: [UserError!]
+}
+
+# ─── User ────────────────────────────────────────────────────────────────────
+
+type User {
+  id: ID!
+  username: String!
+  fullName: String
+  email: String
+  bio: String
+  avatarUrl: String
+  url: String!
+  followerCount: Int!
+  followingCount: Int!
+  videoCount: Int!
+  channels(first: Int, after: String): ChannelConnection
+  playlists(first: Int, after: String): PlaylistConnection
+  videos(filter: VideoFilter, sort: VideoSort, first: Int, after: String): VideoConnection
+  followers(first: Int, after: String): UserConnection
+  following(first: Int, after: String): UserConnection
+  subscriptions(first: Int, after: String): SubscriptionConnection
+  watchLater(first: Int, after: String): VideoConnection
+  notifications(first: Int, after: String): NotificationConnection
+  isVerified: Boolean!
+  country: Country
+  language: Language
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type UserConnection {
+  edges: [UserEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type UserEdge {
+  node: User!
+  cursor: String!
+}
+
+input UpdateUserInput {
+  fullName: String
+  bio: String
+  country: String
+  language: String
+}
+
+type UserPayload {
+  user: User
+  errors: [UserError!]
+}
+
+type FollowPayload {
+  success: Boolean!
+  errors: [UserError!]
+}
+
+# ─── Playlist ────────────────────────────────────────────────────────────────
+
+type Playlist {
+  id: ID!
+  name: String!
+  description: String
+  thumbnailUrl: String
+  videoCount: Int!
+  visibility: Visibility!
+  owner: User!
+  channel: Channel
+  videos(first: Int, after: String): VideoConnection
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type PlaylistConnection {
+  edges: [PlaylistEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type PlaylistEdge {
+  node: Playlist!
+  cursor: String!
+}
+
+input PlaylistFilter {
+  channelId: ID
+  ownerId: ID
+  visibility: Visibility
+}
+
+input CreatePlaylistInput {
+  name: String!
+  description: String
+  channelId: ID
+  visibility: Visibility
+}
+
+input UpdatePlaylistInput {
+  name: String
+  description: String
+  visibility: Visibility
+}
+
+type PlaylistPayload {
+  playlist: Playlist
+  errors: [UserError!]
+}
+
+# ─── Comment ─────────────────────────────────────────────────────────────────
+
+type Comment {
+  id: ID!
+  text: String!
+  video: Video!
+  author: User!
+  parentComment: Comment
+  replies(first: Int, after: String): CommentConnection
+  likeCount: Int!
+  isLiked: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type CommentConnection {
+  edges: [CommentEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type CommentEdge {
+  node: Comment!
+  cursor: String!
+}
+
+input CreateCommentInput {
+  videoId: ID!
+  text: String!
+  parentCommentId: ID
+}
+
+input UpdateCommentInput {
+  text: String!
+}
+
+type CommentPayload {
+  comment: Comment
+  errors: [UserError!]
+}
+
+# ─── Live Streaming ──────────────────────────────────────────────────────────
+
+type LiveStream {
+  id: ID!
+  title: String!
+  description: String
+  status: LiveStreamStatus!
+  url: String
+  embedUrl: String
+  thumbnailUrl: String
+  streamKey: String
+  rtmpUrl: String
+  viewerCount: Int!
+  channel: Channel!
+  owner: User!
+  scheduledStartAt: DateTime
+  startedAt: DateTime
+  endedAt: DateTime
+  isRecorded: Boolean!
+  recordedVideo: Video
+  allowedCountries: [Country!]
+  blockedCountries: [Country!]
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type LiveStreamConnection {
+  edges: [LiveStreamEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type LiveStreamEdge {
+  node: LiveStream!
+  cursor: String!
+}
+
+input LiveStreamFilter {
+  channelId: ID
+  status: LiveStreamStatus
+  scheduledAfter: DateTime
+  scheduledBefore: DateTime
+}
+
+enum LiveStreamStatus {
+  SCHEDULED
+  LIVE
+  ENDED
+  FAILED
+}
+
+input CreateLiveStreamInput {
+  title: String!
+  description: String
+  channelId: ID!
+  scheduledStartAt: DateTime
+  isRecorded: Boolean
+  allowedCountries: [String!]
+  blockedCountries: [String!]
+}
+
+input UpdateLiveStreamInput {
+  title: String
+  description: String
+  scheduledStartAt: DateTime
+  isRecorded: Boolean
+  allowedCountries: [String!]
+  blockedCountries: [String!]
+}
+
+type LiveStreamPayload {
+  liveStream: LiveStream
+  errors: [UserError!]
+}
+
+# ─── Analytics ───────────────────────────────────────────────────────────────
+
+type VideoAnalytics {
+  videoId: ID!
+  period: AnalyticsPeriod!
+  views: Int!
+  uniqueViewers: Int!
+  watchTime: Int!
+  averageWatchDuration: Float!
+  completionRate: Float!
+  likes: Int!
+  comments: Int!
+  shares: Int!
+  impressions: Int!
+  clickThroughRate: Float!
+  revenue: Float
+  dailyBreakdown: [DailyMetric!]
+  geographicBreakdown: [GeographicMetric!]
+  deviceBreakdown: [DeviceMetric!]
+  trafficSourceBreakdown: [TrafficSourceMetric!]
+}
+
+type VideoAnalyticsSummary {
+  totalViews: Int!
+  totalWatchTime: Int!
+  averageWatchDuration: Float!
+  completionRate: Float!
+  totalLikes: Int!
+  totalComments: Int!
+  totalShares: Int!
+}
+
+type ChannelAnalytics {
+  channelId: ID!
+  period: AnalyticsPeriod!
+  totalViews: Int!
+  totalWatchTime: Int!
+  newSubscribers: Int!
+  lostSubscribers: Int!
+  netSubscribers: Int!
+  revenue: Float
+  topVideos: [Video!]
+  dailyBreakdown: [DailyMetric!]
+  geographicBreakdown: [GeographicMetric!]
+}
+
+type ChannelAnalyticsSummary {
+  totalViews: Int!
+  totalWatchTime: Int!
+  subscriberCount: Int!
+}
+
+type DailyMetric {
+  date: Date!
+  views: Int!
+  watchTime: Int!
+  newSubscribers: Int
+  revenue: Float
+}
+
+type GeographicMetric {
+  country: Country!
+  views: Int!
+  watchTime: Int!
+  percentage: Float!
+}
+
+type DeviceMetric {
+  deviceType: DeviceType!
+  views: Int!
+  percentage: Float!
+}
+
+type TrafficSourceMetric {
+  source: TrafficSource!
+  views: Int!
+  percentage: Float!
+}
+
+enum AnalyticsPeriod {
+  LAST_7_DAYS
+  LAST_28_DAYS
+  LAST_90_DAYS
+  LAST_365_DAYS
+  LIFETIME
+}
+
+enum DeviceType {
+  DESKTOP
+  MOBILE
+  TABLET
+  TV
+  OTHER
+}
+
+enum TrafficSource {
+  SEARCH
+  SUGGESTED
+  DIRECT
+  EXTERNAL
+  PLAYLIST
+  CHANNEL_PAGE
+  OTHER
+}
+
+# ─── Advertising ─────────────────────────────────────────────────────────────
+
+type AdConfiguration {
+  id: ID!
+  name: String!
+  channel: Channel!
+  adTypes: [AdType!]!
+  adNetwork: AdNetwork
+  isEnabled: Boolean!
+  monetizationSettings: MonetizationSettings!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type AdConfigurationConnection {
+  edges: [AdConfigurationEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type AdConfigurationEdge {
+  node: AdConfiguration!
+  cursor: String!
+}
+
+type MonetizationSettings {
+  revenueSharePercent: Float
+  minVideoLength: Int
+  allowMidrollAds: Boolean!
+  allowPrerollAds: Boolean!
+  allowPostrollAds: Boolean!
+  allowBannerAds: Boolean!
+}
+
+enum AdType {
+  PREROLL
+  MIDROLL
+  POSTROLL
+  BANNER
+  OVERLAY
+}
+
+enum AdNetwork {
+  DAILYMOTION
+  ADSENSE
+  CUSTOM
+}
+
+input CreateAdConfigurationInput {
+  name: String!
+  channelId: ID!
+  adTypes: [AdType!]!
+  adNetwork: AdNetwork
+  isEnabled: Boolean
+  allowMidrollAds: Boolean
+  allowPrerollAds: Boolean
+  allowPostrollAds: Boolean
+  allowBannerAds: Boolean
+}
+
+input UpdateAdConfigurationInput {
+  name: String
+  adTypes: [AdType!]
+  adNetwork: AdNetwork
+  isEnabled: Boolean
+  allowMidrollAds: Boolean
+  allowPrerollAds: Boolean
+  allowPostrollAds: Boolean
+  allowBannerAds: Boolean
+}
+
+type AdConfigurationPayload {
+  adConfiguration: AdConfiguration
+  errors: [UserError!]
+}
+
+# ─── Content Moderation ───────────────────────────────────────────────────────
+
+type ModerationReport {
+  id: ID!
+  contentType: ModeratedContentType!
+  contentId: ID!
+  reason: ReportReason!
+  details: String
+  status: ModerationStatus!
+  decision: ModerationDecision
+  reporter: User!
+  moderator: User
+  createdAt: DateTime!
+  reviewedAt: DateTime
+}
+
+type ModerationReportConnection {
+  edges: [ModerationReportEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type ModerationReportEdge {
+  node: ModerationReport!
+  cursor: String!
+}
+
+enum ModeratedContentType {
+  VIDEO
+  COMMENT
+  CHANNEL
+  USER
+}
+
+enum ReportReason {
+  SPAM
+  HARASSMENT
+  HATE_SPEECH
+  VIOLENCE
+  COPYRIGHT
+  MISINFORMATION
+  INAPPROPRIATE_CONTENT
+  OTHER
+}
+
+enum ModerationStatus {
+  PENDING
+  UNDER_REVIEW
+  RESOLVED
+  DISMISSED
+}
+
+enum ModerationDecision {
+  REMOVE_CONTENT
+  BAN_USER
+  WARN_USER
+  DISMISS
+}
+
+input ReportContentInput {
+  contentType: ModeratedContentType!
+  contentId: ID!
+  reason: ReportReason!
+  details: String
+}
+
+type ModerationReportPayload {
+  moderationReport: ModerationReport
+  errors: [UserError!]
+}
+
+# ─── Tag ─────────────────────────────────────────────────────────────────────
+
+type Tag {
+  id: ID!
+  name: String!
+  videoCount: Int!
+  videos(first: Int, after: String): VideoConnection
+}
+
+type TagConnection {
+  edges: [TagEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type TagEdge {
+  node: Tag!
+  cursor: String!
+}
+
+# ─── Category ────────────────────────────────────────────────────────────────
+
+type Category {
+  id: ID!
+  name: String!
+  slug: String!
+  parentCategory: Category
+  childCategories: [Category!]
+  videoCount: Int!
+  videos(sort: VideoSort, first: Int, after: String): VideoConnection
+}
+
+type CategoryConnection {
+  edges: [CategoryEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type CategoryEdge {
+  node: Category!
+  cursor: String!
+}
+
+# ─── Language ────────────────────────────────────────────────────────────────
+
+type Language {
+  code: String!
+  name: String!
+  nativeName: String
+  videoCount: Int!
+}
+
+type LanguageConnection {
+  edges: [LanguageEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type LanguageEdge {
+  node: Language!
+  cursor: String!
+}
+
+# ─── Country ─────────────────────────────────────────────────────────────────
+
+type Country {
+  code: String!
+  name: String!
+  videoCount: Int!
+}
+
+type CountryConnection {
+  edges: [CountryEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type CountryEdge {
+  node: Country!
+  cursor: String!
+}
+
+# ─── Subscription (user follows) ─────────────────────────────────────────────
+
+type UserSubscription {
+  id: ID!
+  subscriber: User!
+  channel: Channel!
+  createdAt: DateTime!
+}
+
+type SubscriptionConnection {
+  edges: [SubscriptionEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type SubscriptionEdge {
+  node: UserSubscription!
+  cursor: String!
+}
+
+# ─── Notification ────────────────────────────────────────────────────────────
+
+type Notification {
+  id: ID!
+  type: NotificationType!
+  title: String!
+  message: String!
+  isRead: Boolean!
+  actionUrl: String
+  relatedUser: User
+  relatedVideo: Video
+  relatedChannel: Channel
+  createdAt: DateTime!
+}
+
+type NotificationConnection {
+  edges: [NotificationEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type NotificationEdge {
+  node: Notification!
+  cursor: String!
+}
+
+enum NotificationType {
+  NEW_VIDEO
+  LIVE_STREAM_STARTED
+  COMMENT_ON_VIDEO
+  COMMENT_REPLY
+  NEW_FOLLOWER
+  VIDEO_LIKED
+  CHANNEL_MILESTONE
+  SYSTEM
+}
+
+# ─── Webhook ─────────────────────────────────────────────────────────────────
+
+type Webhook {
+  id: ID!
+  url: String!
+  events: [WebhookEvent!]!
+  isActive: Boolean!
+  secret: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type WebhookConnection {
+  edges: [WebhookEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type WebhookEdge {
+  node: Webhook!
+  cursor: String!
+}
+
+enum WebhookEvent {
+  VIDEO_CREATED
+  VIDEO_PUBLISHED
+  VIDEO_DELETED
+  VIDEO_PROCESSING_COMPLETE
+  LIVE_STREAM_STARTED
+  LIVE_STREAM_ENDED
+  COMMENT_CREATED
+  COMMENT_DELETED
+  USER_SUBSCRIBED
+  USER_UNSUBSCRIBED
+  MODERATION_ACTION
+}
+
+input CreateWebhookInput {
+  url: String!
+  events: [WebhookEvent!]!
+  secret: String
+}
+
+input UpdateWebhookInput {
+  url: String
+  events: [WebhookEvent!]
+  isActive: Boolean
+  secret: String
+}
+
+type WebhookPayload {
+  webhook: Webhook
+  errors: [UserError!]
+}
+
+# ─── Search ──────────────────────────────────────────────────────────────────
+
+union SearchResult = Video | Channel | User | Playlist
+
+type SearchResultEdge {
+  node: SearchResult!
+  cursor: String!
+}
+
+type SearchResultConnection {
+  edges: [SearchResultEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+enum SearchType {
+  VIDEO
+  CHANNEL
+  USER
+  PLAYLIST
+  ALL
+}
+
+# ─── Shared / Utility Types ──────────────────────────────────────────────────
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type UserError {
+  field: String
+  message: String!
+  code: ErrorCode
+}
+
+type DeletePayload {
+  success: Boolean!
+  errors: [UserError!]
+}
+
+enum ErrorCode {
+  NOT_FOUND
+  UNAUTHORIZED
+  FORBIDDEN
+  VALIDATION_ERROR
+  RATE_LIMITED
+  INTERNAL_ERROR
+}
+
+# ─── Scalars ─────────────────────────────────────────────────────────────────
+
+scalar DateTime
+scalar Date
+scalar URL
+scalar JSON
