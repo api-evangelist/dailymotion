@@ -31,6 +31,10 @@ apis:
   - url: graphql/dailymotion-graphql.md
     type: GraphQL
 common:
+- type: VulnerabilityDisclosure
+  url: security/dailymotion-vulnerability-disclosure.yml
+- type: DomainSecurity
+  url: security/dailymotion-domain-security.yml
 - type: Website
   url: https://developer.dailymotion.com/
 - type: PublicAPIsListing
