@@ -51,8 +51,6 @@ apis:
     url: https://developers.dailymotion.com/guides/webhooks/
   - type: Review
     url: review.yml
-  - url: graphql/dailymotion-graphql.md
-    type: GraphQL
 common:
 - type: VulnerabilityDisclosure
   url: security/dailymotion-vulnerability-disclosure.yml
