@@ -39,7 +39,6 @@ apis:
 - name: Dailymotion
   description: Dailymotion Developer API
   humanURL: https://developer.dailymotion.com/
-  baseURL: https://developer.dailymotion.com/
   tags:
   - Video
   properties:
